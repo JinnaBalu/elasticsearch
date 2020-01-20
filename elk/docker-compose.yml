@@ -1,0 +1,79 @@
+version: '3.7'
+services:
+    elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${TAG}
+    container_name: elasticsearch
+    secrets:
+      - source: elasticsearch.yml
+        target: /usr/share/elasticsearch/config/elasticsearch.yml
+    ports: ['9200:9200']
+    networks: ['stack']
+    volumes:
+      - 'es_data:/usr/share/elasticsearch/data'
+    healthcheck:
+      test: curl --cacert -s https://localhost:9200 >/dev/null; if [[ $$? == 52 ]]; then echo 0; else echo 1; fi
+      interval: 30s
+      timeout: 10s
+      retries: 5
+  logstash:
+    image: docker.elastic.co/logstash/logstash:${TAG}
+    container_name: logstash
+    secrets:
+      - source: logstash.conf
+        target: /usr/share/logstash/pipeline/logstash.conf
+      - source: logstash.yml
+        target: /usr/share/logstash/config/logstash.yml
+    networks: ['stack']
+    depends_on: ['elasticsearch']
+    healthcheck:
+      test: bin/logstash -t
+      interval: 60s
+      timeout: 50s
+      retries: 5
+  logstash:
+    image: docker.elastic.co/logstash/logstash-oss:${TAG}
+    container_name: logstash
+    environment:
+      - INPUT_TCP_PORT=5000
+      - INPUT_UDP_PORT=5000
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
+      - LOGSTASH_DEBUG=false
+    networks: ['stack']
+    ports:
+      - 5000:5000
+      - 5000:5000/udp
+    networks: ['stack']
+    depends_on: ['elasticsearch']
+    healthcheck:
+      test: bin/logstash -t
+      interval: 60s
+      timeout: 50s
+      retries: 5
+    # Uncomment this section and add a logstash.conf file in log-conf/
+    # to have logstash config loaded from a volume
+    #volumes:
+    #    - ./log-conf/:/usr/share/logstash/pipeline/
+    extends:
+      file: jhipster-console.yml
+      service: jhipster-logstash
+    depends_on:
+      - jhipster-elasticsearch
+  jhipster-console:
+    extends:
+      file: jhipster-console.yml
+      service: jhipster-console
+    depends_on:
+      - jhipster-elasticsearch
+  jhipster-import-dashboards:
+    extends:
+      file: jhipster-console.yml
+      service: jhipster-import-dashboards
+    depends_on:
+      - jhipster-elasticsearch
+  jhipster-curator:
+    extends:
+      file: jhipster-console.yml
+      service: jhipster-curator
+    depends_on:
+      - jhipster-elasticsearch

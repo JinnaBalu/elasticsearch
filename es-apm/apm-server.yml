@@ -1,0 +1,9 @@
+apm-server.frontend.enabled: true
+apm-server.host: "0.0.0.0:8200"
+
+output.elasticsearch:
+  hosts: ['http://192.31.254.19:9200']
+  
+setup.kibana:
+  host: "http://192.31.2.99:5601"
+  

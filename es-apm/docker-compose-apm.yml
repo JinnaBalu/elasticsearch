@@ -1,0 +1,14 @@
+version: '3'
+services:
+  apm-server:
+    image: docker.elastic.co/apm/apm-server:6.5.0
+    container_name: apm_server
+    ports: ['8200:8200']
+    command: --strict.perms=false -e 
+    volumes:
+      - ./apm-server.yml:/usr/share/apm-server/apm-server.yml
+    healthcheck:
+      test: curl  -s https://localhost:8200/healthcheck >/dev/null; if [[ $$? == 52 ]]; then echo 0; else echo 1; fi
+      interval: 30s
+      timeout: 10s
+      retries: 5

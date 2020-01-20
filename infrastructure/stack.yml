@@ -1,0 +1,77 @@
+---
+version: '3.7'
+services:
+  pselasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${TAG}
+    container_name: pselasticsearch
+    environment:
+      cluster.name: "docker-cluster"
+      network.host: 0.0.0.0
+      transport.host: 0.0.0.0
+      discovery.zen.minimum_master_nodes: 1
+      discovery.type: single-node
+      xpack.license.self_generated.type: basic
+    ports: ['9200:9200']
+    networks: ['stack']
+    volumes:
+      - 'es_data:/usr/share/elasticsearch/data'
+    healthcheck:
+      test: curl -s https://localhost:9200 >/dev/null; if [[ $$? == 52 ]]; then echo 0; else echo 1; fi
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:${TAG}
+    container_name: kibana
+    environment:
+      SERVER_NAME: kibana.example.org
+      SERVER_HOST: "0"
+      ELASTICSEARCH_HOSTS: [
+        "http://pselasticsearch:9200"
+      ]
+      XPACK_MONITORING_UI_CONTAINER_ELASTICSEARCH_ENABLED: true
+    ports: ['5601:5601']
+    networks: ['stack']
+    depends_on: ['pselasticsearch']
+    healthcheck:
+      test: curl -s https://localhost:5601 >/dev/null; if [[ $$? == 52 ]]; then echo 0; else echo 1; fi
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  metricbeat:
+    image: docker.elastic.co/beats/metricbeat:${TAG}
+    container_name: metricbeat
+    # The commented sections below enable Metricbeat to monitor the Docker host,
+    # rather than the Metricbeat container. It's problematic with Docker for
+    # Windows, however, since "/proc", "/sys" etc. don't exist on Windows.
+    # The same likely applies to OSX (needs testing).
+    volumes:
+      - /proc:/hostfs/proc:ro
+      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+      - /:/hostfs:ro
+    command: --strict.perms=false -e  # -e flag to log to stderr and disable syslog/file output
+    secrets:
+      - source: metricbeat.yml
+        target: /usr/share/metricbeat/metricbeat.yml
+    networks: ['stack']
+    depends_on: ['pselasticsearch', 'kibana']
+    healthcheck:
+      test: metricbeat test config
+      interval: 30s
+      timeout: 15s
+      retries: 5
+
+
+networks: {stack: {}}
+volumes:
+  es_data:
+
+secrets:
+  elasticsearch.yml:
+    file: ./config/elasticsearch/elasticsearch.yml
+  kibana.yml:
+    file: ./config/kibana/kibana.yml
+  metricbeat.yml:
+    file: ./config/metricbeat/metricbeat.yml

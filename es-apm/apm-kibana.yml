@@ -1,0 +1,30 @@
+version: '3'
+services:
+  apm-server:
+    image: docker.elastic.co/apm/apm-server:6.5.0
+    container_name: apm_server
+    ports: ['8200:8200']
+    networks: ['stack']
+    command: --strict.perms=false -e 
+    volumes:
+      - ./apm-server.yml:/usr/share/apm-server/apm-server.yml
+    depends_on: ['kibana']
+    healthcheck:
+      test: curl  -s https://localhost:8200/healthcheck >/dev/null; if [[ $$? == 52 ]]; then echo 0; else echo 1; fi
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:6.4.3
+    container_name: kibana
+    volumes:
+      - ./kibana.yml:
+    ports: ['5601:5601']
+    networks: ['stack']
+    healthcheck:
+      test: curl -s https://localhost:5601 >/dev/null; if [[ $$? == 52 ]]; then echo 0; else echo 1; fi
+      interval: 30s
+      timeout: 10s
+      retries: 5
+networks: {stack: {}}

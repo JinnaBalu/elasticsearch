@@ -1,0 +1,7 @@
+# Default Kibana configuration from kibana-docker.
+server.port: 5601
+server.host: "0.0.0.0"
+server.basePath: "/wsapm"
+server.rewriteBasePath: true
+elasticsearch.url: "http://192.31.254.19:9200"
+xpack.monitoring.ui.container.elasticsearch.enabled: true
