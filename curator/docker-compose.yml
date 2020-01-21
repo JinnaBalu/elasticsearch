@@ -1,0 +1,14 @@
+version: '3.7'
+networks:
+  stack:
+    external:
+      name: stack
+services:
+  curator:
+    image: curator
+    networks: ['stack']
+    container_name: curator
+    environment:
+      ES_HOST: jhipster-elasticsearch
+      UNIT_COUNT: 7
+      UNIT: days
