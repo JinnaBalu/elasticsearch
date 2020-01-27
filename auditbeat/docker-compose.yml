@@ -1,0 +1,26 @@
+version: '3.7'
+networks:
+  stack:
+    external:
+      name: stack
+services:
+  auditbeat:
+    image: docker.elastic.co/beats/auditbeat:${TAG}
+    container_name: auditbeat
+    command: -e --strict.perms=false # -e flag to log to stderr and disable syslog/file output
+    cap_add: ['AUDIT_CONTROL', 'AUDIT_READ']
+    user: root
+    privileged: true
+    pid: host
+    secrets:
+      - source: auditbeat.yml
+        target: /usr/share/auditbeat/auditbeat.yml
+    networks: ['stack']
+    healthcheck:
+      test: auditbeat --strict.perms=false test config
+      interval: 30s
+      timeout: 15s
+      retries: 5
+secrets:
+  auditbeat.yml:
+    file: ./auditbeat.yml

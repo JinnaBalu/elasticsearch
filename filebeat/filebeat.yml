@@ -1,0 +1,33 @@
+filebeat.config:
+  inputs:
+    path: ${path.config}/prospectors.d/*.yml
+    reload.enabled: false
+  modules:
+    path: ${path.config}/modules.d/*.yml
+    reload.enabled: false
+
+filebeat.inputs:
+  - type: docker
+    containers.ids:
+      - '*'
+    processors:
+    - add_docker_metadata: ~
+
+output.elasticsearch:
+  hosts: ['elasticsearch:9200']
+  protocol: "http"
+  # protocol: "https"
+  # username: elastic
+  # # Read PW from filebeat.keystore
+  # password: "${ELASTIC_PASSWORD}"
+  # ssl.certificate_authorities: ["/usr/share/filebeat/certs/ca/ca.crt"]
+
+setup.kibana:
+  host: "http://kibana:5601"
+  protocol: "http"
+  # username: elastic
+  # password: "${ELASTIC_PASSWORD}"
+  # ssl.enabled: false
+  # ssl.certificate_authorities: ["/usr/share/filebeat/certs/ca/ca.crt"]
+
+xpack.monitoring.enabled: true

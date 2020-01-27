@@ -1,0 +1,22 @@
+version: '3.7'
+networks:
+  stack:
+    external:
+      name: stack
+services:
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:${TAG}
+    container_name: filebeat
+    command: --strict.perms=false -e
+    secrets:
+      - source: filebeat.yml
+        target: /usr/share/filebeat/filebeat.yml
+    networks: ['stack']
+    healthcheck:
+      test: filebeat test config
+      interval: 30s
+      timeout: 15s
+      retries: 5
+secrets:
+  filebeat.yml:
+    file: ./filebeat.yml

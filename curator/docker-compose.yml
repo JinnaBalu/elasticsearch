@@ -9,6 +9,6 @@ services:
     networks: ['stack']
     container_name: curator
     environment:
-      ES_HOST: jhipster-elasticsearch
+      ES_HOST: elasticsearch
       UNIT_COUNT: 7
       UNIT: days
