@@ -1,0 +1,27 @@
+
+version: '3.7'
+networks:
+  stack:
+    external:
+      name: stack
+services:
+  logstash:
+    image: docker.elastic.co/logstash/logstash:${TAG}
+    container_name: logstash
+    secrets:
+      - source: logstash.conf
+        target: /usr/share/logstash/pipeline/logstash.conf
+      - source: logstash.yml
+        target: /usr/share/logstash/config/logstash.yml
+    networks: ['stack']
+    depends_on: ['elasticsearch']
+    healthcheck:
+      test: bin/logstash -t
+      interval: 60s
+      timeout: 50s
+      retries: 5
+secrets:
+  logstash.yml:
+    file: ./logstash.yml
+  logstash.conf:
+    file: ./pipeline/logstash.conf

@@ -1,0 +1,37 @@
+
+version: '3.7'
+networks:
+  stack:
+    external:
+      name: stack
+services:
+  packetbeat:
+    image: docker.elastic.co/beats/packetbeat:${TAG}
+    container_name: packetbeat
+    # Packetbeat needs some elevated privileges to capture network traffic.
+    # We'll grant them with POSIX capabilities.
+    cap_add: ['NET_RAW', 'NET_ADMIN']
+    # Use "host mode" networking to allow Packetbeat to capture traffic from
+    # the real network interface on the host, rather than being isolated to the
+    # container's virtual interface.
+    network_mode: host
+    # Since we did that, Packetbeat is not part of the "stack" Docker network
+    # that the other containers are connected to, and thus can't resolve the
+    # hostname "elasticsearch". Instead, we'll tell it to find Elasticsearch
+    # on "localhost", which is the Docker host machine in this context.
+    command: -e -E 'output.elasticsearch.hosts=["localhost:9200"]'
+    depends_on: ['elasticsearch']
+    command: --strict.perms=false -e -E output.elasticsearch.hosts="https://localhost:9200" # -e flag to log to stderr and disable syslog/file output
+    secrets:
+      - source: packetbeat.yml
+        target: /usr/share/packetbeat/packetbeat.yml
+    depends_on: ['elasticsearch', 'kibana']
+    healthcheck:
+      test: packetbeat test config
+      interval: 30s
+      timeout: 15s
+      retries: 5
+
+secrets:
+  packetbeat.yml:
+    file: ./packetbeat.yml
