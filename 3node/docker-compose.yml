@@ -1,0 +1,98 @@
+
+
+version: '3.7'
+services:
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+    ports: ['9200:9200']
+    networks: ['stack']
+    environment:
+      cluster.name: "monitoring-cluster"
+      discovery.zen.ping.unicast.hosts: elasticsearch
+      ES_JAVA_OPTS: -Xms1g -Xmx1g
+      xpack.license.self_generated.type: basic
+      node.master: "true"
+    volumes:
+      - 'es_data1:/usr/share/elasticsearch/data'
+    healthcheck:
+      test: curl -s https://localhost:9200 >/dev/null; if [[ $$? == 52 ]]; then echo 0; else echo 1; fi
+      interval: 30s
+      timeout: 10s
+      retries: 5
+  elasticsearch2:
+    container_name: elasticsearch2
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+    ports: ['9202:9200']
+    networks: ['stack']
+    environment:
+      cluster.name: "monitoring-cluster"
+      discovery.zen.ping.unicast.hosts: elasticsearch
+      ES_JAVA_OPTS: -Xms1g -Xmx1g
+      xpack.license.self_generated.type: basic
+    volumes:
+      - 'es_data2:/usr/share/elasticsearch/data'
+    healthcheck:
+      test: curl -s https://localhost:9202 >/dev/null; if [[ $$? == 52 ]]; then echo 0; else echo 1; fi
+      interval: 30s
+      timeout: 10s
+      retries: 5
+  elasticsearch3:
+    container_name: elasticsearch3
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+    ports: ['9203:9200']
+    networks: ['stack']
+    environment:
+      cluster.name: "monitoring-cluster"
+      discovery.zen.ping.unicast.hosts: elasticsearch
+      ES_JAVA_OPTS: -Xms1g -Xmx1g
+      xpack.license.self_generated.type: basic
+    volumes:
+      - 'es_data3:/usr/share/elasticsearch/data'
+    healthcheck:
+      test: curl -s https://localhost:9203 >/dev/null; if [[ $$? == 52 ]]; then echo 0; else echo 1; fi
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:7.5.2
+    secrets:
+      - source: kibana.yml
+        target: /usr/share/kibana/config/kibana.yml
+    ports: ['5601:5601']
+    networks: ['stack']
+    depends_on: ['elasticsearch']
+    healthcheck:
+      test: curl -s https://localhost:5601 >/dev/null; if [[ $$? == 52 ]]; then echo 0; else echo 1; fi
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+networks: 
+  stack:
+    external:
+      name: stack
+volumes:
+    es_data1:
+      driver: local
+      driver_opts:
+       o: bind
+       type: none
+       device: /var/db/elasticsearch/data1
+    es_data2:
+      driver: local
+      driver_opts:
+       o: bind
+       type: none
+       device: /var/db/elasticsearch/data2
+    es_data3:
+      driver: local
+      driver_opts:
+       o: bind
+       type: none
+       device: /var/db/elasticsearch/data3
+secrets:
+  kibana.yml:
+    file: ./config/kibana.yml

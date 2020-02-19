@@ -26,13 +26,6 @@ services:
   kibana:
     container_name: kibana
     image: docker.elastic.co/kibana/kibana:${TAG}
-    environment:
-      server.port: 5601
-      server.host: '0.0.0.0'
-      # server.basePath: '/dehazekibana'  # TO SET CONTEXT TO KIBANA USE THIS PROPERTY
-      # server.rewriteBasePath: true      # TO SET CONTEXT TO KIBANA USE THIS PROPERTY
-      elasticsearch.hosts: "http://elasticsearch:9200"
-      xpack.monitoring.ui.container.elasticsearch.enabled: "true" 
     ports: ['5601:5601']
     networks: ['stack']
     depends_on: ['elasticsearch']
@@ -52,4 +45,4 @@ volumes:
       driver_opts:
        o: bind
        type: none
-       device: /var/db/dehaze/monitoring-elasticsearch/data
+       device: /var/db/monitoring-elasticsearch/data

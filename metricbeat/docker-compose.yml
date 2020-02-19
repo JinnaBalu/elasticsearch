@@ -13,6 +13,7 @@ services:
       - /proc:/hostfs/proc:ro
       - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
       - /:/hostfs:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     command: --strict.perms=false -e  # -e flag to log to stderr and disable syslog/file output
     secrets:
       - source: metricbeat.yml

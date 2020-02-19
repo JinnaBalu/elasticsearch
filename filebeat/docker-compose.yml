@@ -11,6 +11,9 @@ services:
     secrets:
       - source: filebeat.yml
         target: /usr/share/filebeat/filebeat.yml
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks: ['stack']
     healthcheck:
       test: filebeat test config
