@@ -10,7 +10,17 @@ Application Performance Monitoring (APM) collects in-depth performance metrics a
 - [Create the network](./README.md)
 - [Run elasticsearch and kibana](ELASTICSEARCH_KIBANA.md)
 
-Then run the apm server as a container
+
+#### Step 1: Create the docker-compose.yml for running APM Server as container
+
+
+https://raw.githubusercontent.com/JinnaBalu/platform-obs/elasticsearch/master/docker-compose.yml?token=ACZ5APK45Q42JE3D2BTOOZS6KQTOM
+
+#### Step 2: Edit the apm-server.yml 
+
+https://raw.githubusercontent.com/JinnaBalu/platform-obs/elasticsearch/master/docker-compose.yml?token=ACZ5APK45Q42JE3D2BTOOZS6KQTOM
+
+#### Step 3: Start the APM server
 
 ```bash
 docker-compose -f apm/docker-compose.yml up -d
@@ -28,6 +38,16 @@ APM Server : [http://localhost:8200/](http://localhost:8200/)
 }
 ```
 
+### Step 4: Check with the status of the APM
+
+```bash
+docker ps -a
+
+docker logs <CONTAINER_NAME> or <CONTAINER_ID>
+
+ex: docker logs apm or docker logs 1srr3w82b
+
+```
 
 ### Configure the APM Agents
 
