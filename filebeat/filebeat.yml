@@ -1,33 +1,35 @@
 filebeat.config:
-  inputs:
-    path: ${path.config}/prospectors.d/*.yml
-    reload.enabled: false
   modules:
     path: ${path.config}/modules.d/*.yml
     reload.enabled: false
 
+# filebeat.autodiscover:
+#   providers:
+#     - type: docker
+#       hints.enabled: true
+
+processors:
+- add_id: ~
+- add_docker_metadata:
+    host: "unix:///var/run/docker.sock"
+
 filebeat.inputs:
-  - type: docker
-    containers.ids:
-      - '*'
-    processors:
-    - add_docker_metadata: ~
+- type: log
+  paths:
+    - /home/balu/Desktop/candidatesearch/*.log
+
+setup.template.name: "filebeat"
+setup.template.pattern: "filebeat-*"
+setup.template.overwrite: false
+setup.template.settings:
+  index.number_of_shards: 1
+  index.number_of_replicas: 1
+setup.dashboards.enabled: true
 
 output.elasticsearch:
   hosts: ['elasticsearch:9200']
   protocol: "http"
-  # protocol: "https"
-  # username: elastic
-  # # Read PW from filebeat.keystore
-  # password: "${ELASTIC_PASSWORD}"
-  # ssl.certificate_authorities: ["/usr/share/filebeat/certs/ca/ca.crt"]
-
 setup.kibana:
   host: "http://kibana:5601"
   protocol: "http"
-  # username: elastic
-  # password: "${ELASTIC_PASSWORD}"
-  # ssl.enabled: false
-  # ssl.certificate_authorities: ["/usr/share/filebeat/certs/ca/ca.crt"]
-
 xpack.monitoring.enabled: true

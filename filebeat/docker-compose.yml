@@ -1,5 +1,5 @@
 version: '3.7'
-networks:
+networks: 
   stack:
     external:
       name: stack
@@ -7,13 +7,19 @@ services:
   filebeat:
     image: docker.elastic.co/beats/filebeat:${TAG}
     container_name: filebeat
-    command: --strict.perms=false -e
+    user: root
+    privileged: true
+    command: --strict.perms=false -e  # -e flag to log to stderr and disable syslog/file output
+    # If the host system has logs at "/var/log", mount them at "/mnt/log"
+    # inside the container, where Filebeat can find them.
+    # volumes: ['/var/log:/mnt/log:ro']
+    volumes:
+      # - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      # - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /home/balu/Desktop/candidatesearch:/home/balu/Desktop/candidatesearch:ro
     secrets:
       - source: filebeat.yml
         target: /usr/share/filebeat/filebeat.yml
-    volumes:
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks: ['stack']
     healthcheck:
       test: filebeat test config
