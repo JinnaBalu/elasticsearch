@@ -3,9 +3,7 @@
 
 Application Performance Monitoring (APM) collects in-depth performance metrics and errors from inside your application. It allows you to monitor the performance of thousands of applications in real time. [Learn more..](https://www.elastic.co/guide/en/apm/get-started/7.5/index.html)
 
-### Run APM Server 
-
-*Prerequisite*
+#### Prerequisite
 
 - [Create the network](../README.md)
 - [Run elasticsearch and kibana](../ELASTICSEARCH_KIBANA.md)

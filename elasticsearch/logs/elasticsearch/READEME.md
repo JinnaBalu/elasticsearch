@@ -1,0 +1,68 @@
+
+# Apache ActiveMQ logs
+
+The elasticsearch Filebeat module parses logs created by Elasticsearch, to get, we use the filebeat.
+
+[Elasticsearch Filebeat Module](https://www.elastic.co/guide/en/beats/filebeat/7.6/filebeat-module-elasticsearch.html)
+
+
+#### Prerequisite
+
+- [Create the network](../README.md)
+- [Run elasticsearch and kibana](../ELASTICSEARCH_KIBANA.md)
+
+#### Update filebeat.yml with the following
+
+```yml
+filebeat.config:
+  modules:
+    path: ${path.config}/modules.d/*.yml
+    reload.enabled: false
+
+- module: elasticsearch
+  server:
+    enabled: true
+    var.paths:
+      - /var/log/elasticsearch/*.log          # Plain text logs
+      - /var/log/elasticsearch/*_server.json  # JSON logs
+  gc:
+    var.paths:
+      - /var/log/elasticsearch/gc.log.[0-9]*
+      - /var/log/elasticsearch/gc.log
+  audit:
+    var.paths:
+      - /var/log/elasticsearch/*_access.log  # Plain text logs
+      - /var/log/elasticsearch/*_audit.json  # JSON logs
+  slowlog:
+    var.paths:
+      - /var/log/elasticsearch/*_index_search_slowlog.log     # Plain text logs
+      - /var/log/elasticsearch/*_index_indexing_slowlog.log   # Plain text logs
+      - /var/log/elasticsearch/*_index_search_slowlog.json    # JSON logs
+      - /var/log/elasticsearch/*_index_indexing_slowlog.json  # JSON logs
+  deprecation:
+    var.paths:
+      - /var/log/elasticsearch/*_deprecation.log   # Plain text logs
+      - /var/log/elasticsearch/*_deprecation.json  # JSON logs
+    
+setup.template.name: "filebeat"
+setup.template.pattern: "filebeat-*"
+setup.template.overwrite: false
+setup.template.settings:
+  index.number_of_shards: 1
+  index.number_of_replicas: 1
+setup.dashboards.enabled: true
+
+output.elasticsearch:
+  hosts: ['elasticsearch:9200']
+  protocol: "http"
+setup.kibana:
+  host: "http://kibana:5601"
+  protocol: "http"
+xpack.monitoring.enabled: true
+```
+
+#### Run filebeat
+
+[RUN Filebeat](../../filebeat/README.md)
+
+
