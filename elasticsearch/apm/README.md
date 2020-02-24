@@ -11,7 +11,9 @@ Application Performance Monitoring (APM) collects in-depth performance metrics a
 
 #### Step 1: Create the docker-compose.yml for running APM Server as container
 
+```html
 <iframe src="https://raw.githubusercontent.com/JinnaBalu/platform-obs/master/elasticsearch/apm/docker-compose.yml?token=ACZ5APKRRNKHH5AIBBTJFIK6KQV7E"></iframe>
+```
 
 #### Step 2: Edit the apm-server.yml 
 
