@@ -1,0 +1,30 @@
+metricbeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+
+processors:
+- add_cloud_metadata:
+
+output.elasticsearch:
+  hosts: ['elasticsearch:9200']
+  protocol: "http"
+
+setup.kibana:
+  host: "http://kibana:5601"
+  protocol: "http"
+  ssl.enabled: false
+  
+xpack.monitoring.enabled: true
+
+
+metricbeat.modules:
+- module: nginx
+  metricsets: ["stubstatus"]
+  enabled: true
+  period: 10s
+
+  # Nginx hosts
+  hosts: ["http://127.0.0.1"]
+
+  # Path to server status. Default nginx_status
+  server_status_path: "nginx_status"

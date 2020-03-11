@@ -1,0 +1,8 @@
+cluster.name: escluster
+node.name: "es-node-one"
+node.master: true
+# network.publish_host: <PUBLIC_IP>
+discovery.zen.ping.multicast.enabled: false
+# discovery.zen.ping.unicast.hosts: ["<PUBLIC_IP>"]
+discovery.zen.ping.timeout: 3s
+discovery.zen.minimum_master_nodes: 1

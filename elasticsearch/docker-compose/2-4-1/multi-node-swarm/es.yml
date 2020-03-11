@@ -1,0 +1,82 @@
+version: "3.3"
+services:
+  elasticsearch:
+    image: elasticsearch:2.4.1
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.minimum_master_nodes=2"
+      - "discovery.zen.ping.unicast.hosts=master"
+      - "node.master=false"
+      - "node.data=false"
+      - "node.ingest=false"
+    networks:
+       - esnet
+    ports:
+      - target: 9200
+        published: 9200
+        protocol: tcp
+        mode: host
+    deploy:
+      endpoint_mode: dnsrr
+      mode: 'global'
+      resources:
+        limits:
+          memory: 1G
+        ulimits:
+          memlock:
+            soft: -1
+            hard: -1
+      placement:
+        constraints: [node.hostname == <NAME_HOST>]
+  master:
+    image: elasticsearch:2.4.1
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.minimum_master_nodes=2"
+      - "discovery.zen.ping.unicast.hosts=master"
+      - "node.master=true"
+      - "node.data=false"
+      - "node.ingest=false"
+    networks:
+       - esnet
+    deploy:
+      endpoint_mode: dnsrr
+      mode: 'replicated'
+      replicas: 3
+      resources:
+        limits:
+          memory: 1G
+        ulimits:
+          memlock:
+            soft: -1
+            hard: -1
+      placement:
+        constraints: [node.hostname == <NAME_HOST>]
+  data:
+    image: elasticsearch:2.4.1
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.minimum_master_nodes=2"
+      - "discovery.zen.ping.unicast.hosts=master"
+      - "node.master=false"
+      - "node.data=true"
+      - "node.ingest=false"
+    networks:
+       - esnet
+    deploy:
+      endpoint_mode: dnsrr
+      mode: 'replicated'
+      replicas: 1
+      resources:
+        limits:
+          memory: 1G
+        ulimits:
+          memlock:
+            soft: -1
+            hard: -1
+      placement:
+        constraints: [node.hostname == <NAME_HOST>]
+
+networks:
+  esnet:
+    driver: overlay

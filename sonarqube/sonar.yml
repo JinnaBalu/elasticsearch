@@ -1,0 +1,20 @@
+version: '2'
+services:
+  sonarqube:
+    image: sonarqube:7.6-community
+    restart: always
+    volumes:
+       - sonarqube_conf:/opt/sonarqube/conf
+       - sonarqube_data:/opt/sonarqube/data
+       - sonarqube_extensions:/opt/sonarqube/extensions
+       - sonarqube_bundled-plugins:/opt/sonarqube/lib/bundled-plugins
+       - ../sonar-plugins/sonar-bitbucket-plugin-1.3.0.jar:/opt/sonarqube/extensions/plugins/sonar-bitbucket-plugin-1.3.0.jar
+    # command: -Dsonar.web.context=/sonarqube
+    ports:
+      - "9000:9000"
+      - "9092:9092"
+volumes:
+  sonarqube_conf:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_bundled-plugins:

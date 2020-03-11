@@ -1,0 +1,126 @@
+version: '3'
+services:
+  hartron-elasticsearch-one:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.0.1
+    environment:
+      - bootstrap.memory_lock=true
+      - node.master=true
+      - cluster.name=hartron_es_cluster
+      - node.name=hartron_es_node_one
+      - network.publish_host=10.195.35.25
+      - network.bind_host=0.0.0.0
+      - discovery.zen.ping.unicast.hosts=["10.195.35.25", "10.195.35.26", "10.195.35.27"]
+      - discovery.zen.minimum_master_nodes=2
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - hartron-elasticsearch-one-data:/usr/share/elasticsearch/data
+      - hartron-elasticsearch-one-logs:/var/log/elasticsearch
+    ports:
+      - 9200:9200
+      - 9300:9300
+    networks:
+      - esnet
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.hostname == Hartron-UHDH-VM24]
+  hartron-elasticsearch-two:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.0.1
+    environment:
+      - bootstrap.memory_lock=true
+      - node.master=true
+      - cluster.name=hartron_es_cluster
+      - node.name=hartron_es_node_two
+      - network.publish_host=10.195.35.26
+      - network.bind_host=0.0.0.0
+      - discovery.zen.ping.unicast.hosts=["10.195.35.25", "10.195.35.26", "10.195.35.27"]
+      - discovery.zen.minimum_master_nodes=2
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - hartron-elasticsearch-two-data:/usr/share/elasticsearch/data
+      - hartron-elasticsearch-two-logs:/var/log/elasticsearch
+    networks:
+      - esnet
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.hostname == Hartron-UHDH-VM25]
+  hartron-elasticsearch-three:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.0.1
+    environment:
+      - bootstrap.memory_lock=true
+      - node.master=false
+      - cluster.name=hartron_es_cluster
+      - node.name=hartron_es_node_three
+      - network.publish_host=10.195.35.27
+      - network.bind_host=0.0.0.0
+      - discovery.zen.ping.unicast.hosts=["10.195.35.25", "10.195.35.26", "10.195.35.27"]
+      - discovery.zen.minimum_master_nodes=2
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - hartron-elasticsearch-three-data:/usr/share/elasticsearch/data
+      - hartron-elasticsearch-three-logs:/var/log/elasticsearch
+    networks:
+      - esnet
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.hostname == Hartron-UHDH-VM26]
+volumes:
+  hartron-elasticsearch-one-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /var/db/hartron_es_node_one/elasticsearch/data
+  hartron-elasticsearch-one-logs:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /var/db/hartron_es_node_one/elasticsearch/logs
+  hartron-elasticsearch-two-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /var/db/hartron_es_node_two/elasticsearch/data
+  hartron-elasticsearch-two-logs:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /var/db/hartron_es_node_two/elasticsearch/logs
+  hartron-elasticsearch-three-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /var/db/hartron_es_node_three/elasticsearch/data
+  hartron-elasticsearch-one-logs:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /var/db/hartron_es_node_three/elasticsearch/logs
+
+networks:
+  esnet:

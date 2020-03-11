@@ -2,29 +2,30 @@ filebeat.config:
   modules:
     path: ${path.config}/modules.d/*.yml
     reload.enabled: false
-filebeat.autodiscover:
-  providers:
-    - type: docker
-      hints.enabled: true
-filebeat.inputs:
-- type: docker
-  containers.ids:
-    - '*'
-  processors:
-    - add_docker_metadata: ~
+
+# filebeat.autodiscover:
+#   providers:
+#     - type: docker
+#       hints.enabled: true
+
 processors:
 - add_id: ~
 - add_docker_metadata:
     host: "unix:///var/run/docker.sock"
 
-setup.template.name: "container-log"
-setup.template.pattern: "container-log-*"
-output.elasticsearch.index: "container-log-%{[agent.version]}-%{+yyyy.MM.dd}"
+filebeat.inputs:
+- type: log
+  paths:
+    - /home/balu/Desktop/candidatesearch/*.log
+
+setup.template.name: "filebeat"
+setup.template.pattern: "filebeat-*"
 setup.template.overwrite: false
 setup.template.settings:
   index.number_of_shards: 1
   index.number_of_replicas: 1
 setup.dashboards.enabled: true
+
 output.elasticsearch:
   hosts: ['elasticsearch:9200']
   protocol: "http"

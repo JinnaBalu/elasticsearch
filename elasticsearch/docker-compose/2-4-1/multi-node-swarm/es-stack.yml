@@ -1,0 +1,11 @@
+version: '3'  
+services:  
+  elasticsearch:
+    image: 'elasticsearch:5'
+    command: [ elasticsearch, -E, network.host=0.0.0.0, -E, discovery.zen.ping.unicast.hosts=elasticsearch, -E, discovery.zen.minimum_master_nodes=1 ]    
+    volumes:
+      - /elasticsearch/data:/usr/share/elasticsearch/data
+    deploy:
+      mode: 'global'
+      placement:
+        constraints: [node.labels.app_role == elasticsearch]
